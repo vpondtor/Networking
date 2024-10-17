@@ -1,0 +1,9 @@
+Today I'm working on getting a stream of communication between the server and client.
+
+I'm using TCP which may not be ideal, but thata's ok
+
+Issues
+- Server only listens on localhost
+
+Questions
+- Defining a struct vs. defining a pointer to a struct?

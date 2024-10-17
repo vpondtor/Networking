@@ -13,7 +13,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    // use htons when we actually need the port
     int port = strtoimax(argv[1], NULL, 10);
 
     int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
