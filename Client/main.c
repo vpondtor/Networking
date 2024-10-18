@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <inttypes.h>
 #include <netdb.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
 
     struct sockaddr_in target_addr;
     inet_aton("127.0.0.1", &target_addr.sin_addr);
-    target_addr.sin_port = htons(port);  // Host to network
+    target_addr.sin_port = htons(port);
     target_addr.sin_family = AF_INET;
 
     if (connect(fd, (struct sockaddr*)&target_addr, sizeof(target_addr)) < 0) {

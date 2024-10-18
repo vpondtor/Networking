@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <inttypes.h>
 #include <netdb.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -9,6 +10,24 @@
 
 #define MAX_BUFFER_SIZE 256
 #define LOCAL_HOST "127.0.0.1"
+
+static void *accept_connections(void *arg) {
+    int listener_fd = *((int *)arg);
+    int count = 0;
+    while (1) {
+        int fd = accept(listener_fd, NULL, NULL);
+        if (fd < 0) {
+            close(fd);
+            printf("Error accepting connection: %d\n", fd);
+            return NULL;
+        }
+
+        // TODO: Print out the IP of the incoming connection;
+        printf("Accepted a new connection: %d\n", count++);
+    }
+
+    return NULL;
+}
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -29,11 +48,6 @@ int main(int argc, char **argv) {
     sockaddr.sin_port = htons(port);
     sockaddr.sin_family = AF_INET;
 
-    // char buf[MAX_BUFFER_SIZE];
-    // inet_ntop(AF_INET, &sockaddr.sin_addr, buf, MAX_BUFFER_SIZE);
-    // printf("address: %s\n", buf);
-    // printf("port: %d\n", ntohs(sockaddr.sin_port));
-
     // Create socket
     //
     int listener_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -50,9 +64,9 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    // Bind to localhost on the given port
+    // Bind to the given address
     //
-    error = bind(listener_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr));  // TODO: Why do we use sizeof sockaddr as the length?
+    error = bind(listener_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
     if (error < 0) {
         close(listener_fd);
         printf("Error binding to address: %d.\n", error);
@@ -71,26 +85,12 @@ int main(int argc, char **argv) {
     printf("Listening on port: %d\n", port);
     fflush(stdout);
 
-    struct sockaddr_in peer_addr;
-    socklen_t peer_addr_len;
-    int fd = accept(listener_fd, (struct sockaddr *)&peer_addr, &peer_addr_len);
-    if (fd < 0) {
-        close(listener_fd);
-        printf("Error accepting connection.");
-        return -1;
-    }
+    pthread_t thread;
+    pthread_create(&thread, NULL, accept_connections, &listener_fd);
 
-    char buf[MAX_BUFFER_SIZE];
-
-    struct sockaddr_in sin = (struct sockaddr_in *)&addr;
-
-    inet_ntop(AF_INET, &addr.sa_data, buf, addr.sa_len);
-    printf("Accepted connection from %s\n", buf);
-
-    char msg[MAX_BUFFER_SIZE];
-    read(fd, msg, MAX_BUFFER_SIZE);
-
-    printf("Received Message: %s\n", msg);
+    // TODO: Don't just join this. Have a command line interface or do some signal processing
+    // to clean this up
+    pthread_join(thread, NULL);
 
     close(listener_fd);
 

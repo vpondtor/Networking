@@ -4,6 +4,13 @@ I'm using TCP which may not be ideal, but thata's ok
 
 Issues
 - Server only listens on localhost
+- Figure out how to print the info of the connecting client
 
 Questions
 - Defining a struct vs. defining a pointer to a struct?
+
+For now just worry about creating and maintaining connections
+Don't worry about actually reading + writing from them
+
+Tomorrow
+- Add a command line interface
