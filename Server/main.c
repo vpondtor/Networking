@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
     // TODO: Don't just join this. Have a command line interface or do some signal processing
     // to clean this up
-    pthread_detach(thread, NULL);
+    // pthread_detach(thread, NULL);
 
     close(listener_fd);
 
